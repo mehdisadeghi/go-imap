@@ -2,6 +2,7 @@ package imapclient
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/emersion/go-imap/v2"
@@ -67,10 +68,15 @@ func (c *Client) ID(idData *imap.IDData) *IDCommand {
 			"support-url": {}, "address": {}, "date": {}, "command": {},
 			"arguments": {}, "environment": {},
 		}
-		for k, v := range idData.Raw {
+		keys := make([]string, 0, len(idData.Raw))
+		for k := range idData.Raw {
 			if _, ok := stdKeys[strings.ToLower(k)]; !ok {
-				addIDKeyValue(enc, &isFirstKey, k, v)
+				keys = append(keys, k)
 			}
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			addIDKeyValue(enc, &isFirstKey, k, idData.Raw[k])
 		}
 	}
 
